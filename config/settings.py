@@ -130,7 +130,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
+STATIC_LOCATION = "static"
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / STATIC_LOCATION
+
+MEDIA_LOCATION = "media"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / MEDIA_LOCATION
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get(
