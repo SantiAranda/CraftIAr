@@ -13,6 +13,8 @@ services:
       - redis
     volumes:
       - .:/app
+    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload
+
 
   db:
     container_name: postgres
