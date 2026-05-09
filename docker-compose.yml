@@ -23,10 +23,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      RAG_DB_NAME: ${RAG_DB_NAME}
+      RAG_DB_USER: ${RAG_DB_USER}
+      RAG_DB_PASSWORD: ${RAG_DB_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-multi-db.sh:/docker-entrypoint-initdb.d/init-multi-db.sh:ro
 
   redis:
     image: redis:7

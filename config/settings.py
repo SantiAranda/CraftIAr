@@ -83,6 +83,14 @@ if postgres_host:
             "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "ragpass"),
             "HOST": postgres_host,
             "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        },
+        "rag": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("RAG_DB_NAME", "ragdb"),
+            "USER": os.environ.get("POSTGRES_USER", "raguser"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "ragpass"),
+            "HOST": os.environ.get("RAG_DB_HOST", "db"),
+            "PORT": os.environ.get("RAG_DB_PORT", "5432"),
         }
     }
 else:
@@ -93,6 +101,7 @@ else:
         }
     }
 
+DATABASE_ROUTERS = ["config.db_router.RAGRouter"]
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
