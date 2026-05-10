@@ -6,7 +6,6 @@ from django.urls import include, path
 urlpatterns = (
     [
         path("admin/", admin.site.urls),
-        path("api/", include("app.api.chat.chat_url")),
         path("api/", include("app.api.products.product_url")),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -4,7 +4,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -78,9 +77,9 @@ if postgres_host:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("POSTGRES_DB", "ragdb"),
-            "USER": os.environ.get("POSTGRES_USER", "raguser"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "ragpass"),
+            "NAME": os.environ.get("POSTGRES_DB", "ecommercedb"),
+            "USER": os.environ.get("POSTGRES_USER", "ecommerceuser"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "ecommercepass"),
             "HOST": postgres_host,
             "PORT": os.environ.get("POSTGRES_PORT", "5432"),
         },
@@ -100,8 +99,6 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
-DATABASE_ROUTERS = ["config.db_router.RAGRouter"]
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -160,3 +157,5 @@ CHANNEL_LAYERS = {
         },
     }
 }
+
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")

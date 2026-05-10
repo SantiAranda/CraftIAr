@@ -12,6 +12,8 @@ class ProductModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    embedding = models.CharField(max_length=20, null=True, blank=True)  # Store embedding as a string (e.g., JSON or base64)
+
     objects = models.Manager()
 
     class Meta:
@@ -20,3 +22,14 @@ class ProductModel(models.Model):
 
     def __str__(self):
         return f"{self.sku} - {self.name}"
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_product = ProductModel.objects.get(pk=self.pk)
+            if (
+                old_product.name != self.name
+                or old_product.description != self.description
+                or old_product.category != self.category
+            ):
+                self.embedding = None  # Mark embedding for update
+        super().save(*args, **kwargs)

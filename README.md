@@ -29,6 +29,10 @@ docker compose up --build
 - celery: worker
 - celery-beat: scheduler
 
+## Endpoints
+
+no hay todavia xd
+
 ## Notas
 
-- El proyecto aun no incluye codigo de aplicacion. Solo infraestructura y dependencias.
+- Configura `GOOGLE_API_KEY` y define `RAG_EMBEDDINGS_PROVIDER`/`RAG_LLM_PROVIDER`.
