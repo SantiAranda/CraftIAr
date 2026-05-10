@@ -3,10 +3,11 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.exceptions import ObjectDoesNotExist
 
 from . import (
-    ChatbotMessage,
-    ChatbotMessageSerializer,
+    # ChatbotMessage,
+    # ChatbotMessageSerializer,
     ChatbotSession,
     ChatbotSessionSerializer,
     RAGQueryService,
@@ -50,7 +51,7 @@ class ChatMessageStreamView(APIView):
             response['X-Accel-Buffering'] = 'no'  # Deshabilitar el buffering en Nginx
 
             return response
-        except ChatbotSession.DoesNotExist:
+        except ObjectDoesNotExist:
             return Response(
                 {"error": "Chat session not found."}, status=status.HTTP_404_NOT_FOUND
             )
