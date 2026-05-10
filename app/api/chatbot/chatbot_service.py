@@ -1,0 +1,2 @@
+class RAGQueryService:
+    pass
