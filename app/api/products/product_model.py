@@ -1,3 +1,4 @@
+from celery import old_module
 from django.db import models
 
 
@@ -30,6 +31,9 @@ class ProductModel(models.Model):
                 old_product.name != self.name
                 or old_product.description != self.description
                 or old_product.category != self.category
+                or old_product.price != self.price
+                or old_product.stock != self.stock
+                or old_product.is_active != self.is_active
             ):
                 self.embedding = None  # Mark embedding for update
         super().save(*args, **kwargs)

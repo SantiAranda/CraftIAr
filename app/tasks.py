@@ -26,10 +26,10 @@ def update_product_embeddings():
     cursor = conn.cursor()
 
     # cursor.execute(
-    #     "SELECT id, name, description, category FROM products WHERE embedding IS NULL OR embedding = '' AND updated_at < NOW() - INTERVAL '1 day'"
+  #       "SELECT id, name, description, category, price, stock, is_active FROM products WHERE embedding IS NULL OR embedding = '' AND updated_at < NOW() - INTERVAL '1 day'"
     # )
     cursor.execute(
-        "SELECT id, name, description, category FROM products WHERE embedding IS NULL"
+        "SELECT id, name, description, category, price, stock, is_active FROM products WHERE embedding IS NULL"
     )
     products = cursor.fetchall()
 
