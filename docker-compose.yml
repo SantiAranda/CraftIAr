@@ -1,3 +1,5 @@
+name: rag-django
+
 services:
   app:
     container_name: django_app

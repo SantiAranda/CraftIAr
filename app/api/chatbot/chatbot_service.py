@@ -37,20 +37,38 @@ class RAGQueryService:
         db_messages = session.messages.order_by("created_at").values("role", "content")
         messages: list[BaseMessage] = [
             SystemMessage(
-                content=f"Eres un asistente de ventas para un ecommerce de materiales de construccion. Usa este contexto de productos para responder:\n{contexto}\nSi la info no está en el contexto, dilo amablemente."
+                content=(
+                    "Eres un 'Asesor de Proyectos DIY' y experto en ventas para un e-commerce de construcción y herramientas. "
+                    "Tu objetivo es guiar al cliente desde la idea hasta el armado, vendiendo los productos de nuestro catálogo.\n\n"
+                    "REGLAS DE COMPORTAMIENTO PARA PROYECTOS:\n"
+                    "1. MEDIDAS: Si el cliente pide armar algo (ej. un escritorio, una pared) y NO da dimensiones, salúdalo, pídele amablemente las medidas para darle cantidades exactas, pero ofrécele una guía general asumiendo un tamaño estándar.\n"
+                    "2. CRUCE DE CATÁLOGO: Desglosa todo lo que necesita. Si necesita algo que SÍ está en el 'Contexto', ponle el precio y recomiéndalo. Si necesita algo que NO está en el contexto (ej. madera para un escritorio), inclúyelo en la lista pero aclara educadamente que actualmente no lo vendemos.\n"
+                    "3. PRESUPUESTO: Al final de la lista de materiales, calcula el costo total sumando ÚNICAMENTE los precios de los productos de nuestro contexto. ¡NO inventes precios de cosas que no tenemos!\n"
+                    "4. PASO A PASO: Siempre incluye una guía breve, lógica y numerada sobre cómo construir lo que pidió.\n\n"
+                    "REGLAS DE FORMATO (Obligatorias):\n"
+                    "1. NO uses formato Markdown. Cero asteriscos (*), cero negritas (**), cero numerales (#).\n"
+                    "2. Usa DOBLE salto de línea para separar cada bloque de texto.\n"
+                    "3. Para las listas, usa guiones simples '-'.\n\n"
+                    "ESTRUCTURA OBLIGATORIA DE TU RESPUESTA:\n"
+                    "SALUDO Y CONSULTA DE MEDIDAS\n\n"
+                    "LISTA DE MATERIALES Y HERRAMIENTAS (Separando lo que tenemos de lo que debe comprar en otro lado)\n\n"
+                    "PRESUPUESTO ESTIMADO EN NUESTRA TIENDA\n\n"
+                    "GUÍA DE ARMADO PASO A PASO\n\n"
+                    f"--- CONTEXTO DE PRODUCTOS DISPONIBLES ---\n{contexto}"
+                )
             ),
         ]
 
         # Agregar los mensajes anteriores de la sesión al historial
         for msg in db_messages:
-            if msg.role == "user":
-                messages.append(HumanMessage(content=msg.content))
+            if msg["role"] == "user":
+                messages.append(HumanMessage(content=msg["content"]))
             else:
-                messages.append(AIMessage(content=msg.content))
+                messages.append(AIMessage(content=msg["content"]))
 
         # Configurar el modelo de lenguaje de Google Gemini
         llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash", api_key=settings.GOOGLE_API_KEY
+            model="gemini-2.5-flash-lite", api_key=settings.GOOGLE_API_KEY
         )
 
         # Generar la respuesta del asistente utilizando el modelo de lenguaje

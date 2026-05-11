@@ -1,5 +1,6 @@
 from django.http import StreamingHttpResponse
 from rest_framework import generics, status
+from rest_framework.renderers import BaseRenderer
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,13 +15,13 @@ from . import (
 )
 
 
-class ChatSessionCreateView(generics.CreateAPIView):
+class ChatSessionListCreateView(generics.ListCreateAPIView):
     queryset = ChatbotSession.objects.all()
     serializer_class = ChatbotSessionSerializer
     permission_classes = [AllowAny]
 
 
-class ChatSessionDetailView(generics.RetrieveAPIView):
+class ChatSessionDetailView(generics.RetrieveDestroyAPIView):
     queryset = ChatbotSession.objects.all()
     serializer_class = ChatbotSessionSerializer
     permission_classes = [AllowAny]
@@ -32,6 +33,16 @@ class ChatMessageStreamView(APIView):
         self.rag_service = RAGQueryService()
 
     permission_classes = [AllowAny]
+
+    class ServerSentEventsRenderer(BaseRenderer):
+        media_type = "text/event-stream"
+        format = "sse"
+        charset = "utf-8"
+
+        def render(self, data, media_type=None, renderer_context=None):
+            return data
+
+    renderer_classes = [ServerSentEventsRenderer]
 
     def post(self, request, pk):
         user_text = request.data.get("message")

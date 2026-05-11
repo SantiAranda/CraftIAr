@@ -30,7 +30,7 @@ class ChatbotMessage(models.Model):
 
     class Meta:
         db_table = "chatbot_messages"
-        ordering = ["-created_at"]
+        ordering = ["created_at"]
 
     def __str__(self):
         return f"{self.role} - {self.session_id}" #type: ignore

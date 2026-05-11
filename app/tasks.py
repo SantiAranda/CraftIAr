@@ -15,35 +15,45 @@ VECTOR_DB_URL = f"postgresql+psycopg://{settings.DATABASES['rag']['USER']}:{pass
 
 
 @app.task
-def update_product_embeddings():
-    conn = psycopg2.connect(
-        dbname=settings.DATABASES["default"]["NAME"],
-        user=settings.DATABASES["default"]["USER"],
-        password=settings.DATABASES["default"]["PASSWORD"],
-        host=settings.DATABASES["default"]["HOST"],
-        port=settings.DATABASES["default"]["PORT"],
-    )
-    cursor = conn.cursor()
+def update_product_embeddings(product_ids=None):
+    from .api.products.product_model import ProductModel
 
-    # cursor.execute(
-  #       "SELECT id, name, description, category, price, stock, is_active FROM products WHERE embedding IS NULL OR embedding = '' AND updated_at < NOW() - INTERVAL '1 day'"
-    # )
-    cursor.execute(
-        "SELECT id, name, description, category, price, stock, is_active FROM products WHERE embedding IS NULL"
-    )
-    products = cursor.fetchall()
+    if product_ids:
+        queryset = ProductModel.objects.filter(id__in=product_ids)
+    else:
+        queryset = ProductModel.objects.filter(embedding__isnull=True)
 
-    documents = []
-    for product in products:
-        id, name, description, category = product
-        doc = Document(
-            page_content=f"Product name: {name}\nProduct description: {description}",
-            metadata={
-                "original_id": id,
-                "category": category,
-            },
+    products = list(
+        queryset.values(
+            "id",
+            "name",
+            "description",
+            "category",
+            "price",
+            "stock",
+            "is_active",
         )
-        documents.append(doc)
+    )
+
+    texts = []
+    metadatas = []
+    document_ids = []
+    for product in products:
+        texts.append(
+            f"Product name: {product['name']}\n"
+            f"Product description: {product['description']}\n"
+            f"Category: {product['category']}\n"
+            f"Price: {product['price']}\n"
+            f"Stock: {product['stock']}\n"
+            f"Active: {product['is_active']}"
+        )
+        metadatas.append(
+            {
+                "original_id": str(product["id"]),
+                "category": product["category"],
+            }
+        )
+        document_ids.append(str(product["id"]))
 
     vector_store = PGVector(
         embeddings=embeddings,
@@ -52,17 +62,11 @@ def update_product_embeddings():
         use_jsonb=True,
     )
 
-    if documents:
-        vector_store.add_documents(documents)
+    if texts:
+        for text, metadata, doc_id in zip(texts, metadatas, document_ids, strict=False):
+            vector_store.add_texts(texts=[text], metadatas=[metadata], ids=[doc_id])
 
-        products_ids = [doc.metadata["original_id"] for doc in documents]
-        cursor.execute(
-            "UPDATE products SET embedding = TRUE WHERE id IN %s",
-            (tuple(products_ids),),
-        )
-        conn.commit()
+        product_ids = [meta["original_id"] for meta in metadatas]
+        ProductModel.objects.filter(id__in=product_ids).update(embedding="true")
 
-    cursor.close()
-    conn.close()
-
-    return f"Updated embeddings for {len(documents)} products"
+    return f"Updated embeddings for {len(texts)} products"
