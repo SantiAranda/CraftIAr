@@ -25,15 +25,19 @@ class ProductModel(models.Model):
         return f"{self.sku} - {self.name}"
 
     def save(self, *args, **kwargs):
-        if self.pk:
-            old_product = ProductModel.objects.get(pk=self.pk)
-            if (
+        if self.pk and not self._state.adding:
+            try:
+                old_product = ProductModel.objects.get(pk=self.pk)
+            except ProductModel.DoesNotExist:
+                old_product = None
+
+            if old_product and (
                 old_product.name != self.name
                 or old_product.description != self.description
                 or old_product.category != self.category
                 or old_product.price != self.price
                 or old_product.stock != self.stock
-                or old_product.is_active != self.is_active 
+                or old_product.is_active != self.is_active
             ):
                 self.embedding = None  # Mark embedding for update
         super().save(*args, **kwargs)
